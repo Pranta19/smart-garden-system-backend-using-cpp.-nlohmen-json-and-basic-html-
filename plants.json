@@ -1,0 +1,18 @@
+{
+    "plants": [
+        {
+            "id": 1,
+            "name": "Tomato Vine",
+            "type": "Fruit",
+            "moisture_level": 75,
+            "last_watered": "2025-11-23"
+        },
+        {
+            "id": 2,
+            "name": "Basil",
+            "type": "Herb",
+            "moisture_level": 45,
+            "last_watered": "2025-11-20"
+        }
+    ]
+}

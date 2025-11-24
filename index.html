@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Garden OOP System</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<header>
+    <h1><i class="fa-solid fa-seedling"></i> Smart Garden</h1>
+    <p>C++ Object Oriented Backend System</p>
+</header>
+
+<main>
+    <section class="panel">
+        <h2><i class="fa-solid fa-circle-plus"></i> Add New Plant</h2>
+        <form id="addForm">
+            <div class="input-group">
+                <input type="text" name="name" placeholder="Plant Name (e.g., Monstera)" required>
+                <input type="text" name="species" placeholder="Species" required>
+            </div>
+            <div class="input-group">
+                <input type="date" name="planted" required title="Date Planted">
+                <input type="number" name="pot_size_cm" placeholder="Pot Size (cm)" required>
+            </div>
+            <div class="input-group">
+                <select name="sunlight">
+                    <option value="Direct Sun">Direct Sun</option>
+                    <option value="Partial Shade">Partial Shade</option>
+                    <option value="Indirect Light">Indirect Light</option>
+                    <option value="Low Light">Low Light</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <input type="number" name="watering_interval" placeholder="Water Every X Days" required>
+                <input type="number" name="fertilizer_interval" placeholder="Fertilize Every X Days" required>
+            </div>
+            
+            <input type="hidden" name="action" value="add">
+            
+            <button type="submit"><i class="fa-solid fa-check"></i> Add to Garden</button>
+        </form>
+    </section>
+
+    <section id="gardenGrid" class="garden-grid">
+        <div class="loading">
+            <i class="fa-solid fa-spinner fa-spin"></i> Loading your garden data...
+        </div>
+    </section>
+</main>
+
+<script>
+    const API_URL = 'cgi-bin/garden.cgi.exe';
+
+    // Helper: Determine if care is due now based on date string from C++
+    function checkStatus(dateStr) {
+        if (dateStr === "due now" || dateStr === "Manual Care") {
+            return { isDue: true, msg: "DUE" };
+        }
+        const due = new Date(dateStr);
+        const today = new Date();
+        today.setHours(0,0,0,0); 
+        
+        if (due <= today) return { isDue: true, msg: "DUE" };
+        return { isDue: false, msg: "Next" };
+    }
+
+    // Fetch and Render Plants
+    async function loadGarden() {
+        const grid = document.getElementById('gardenGrid');
+        
+        try {
+            const response = await fetch(`${API_URL}?action=list`);
+            if (!response.ok) throw new Error("Failed to connect to C++ backend");
+            
+            const data = await response.json();
+            grid.innerHTML = ''; 
+
+            if (data.plants.length === 0) {
+                grid.innerHTML = '<div class="loading">No plants yet. Add one above!</div>';
+                return;
+            }
+
+            data.plants.forEach(plant => {
+                const waterStatus = checkStatus(plant.next_water);
+                const fertStatus = checkStatus(plant.next_fertilize);
+
+                const waterClass = waterStatus.isDue ? 'status-danger' : 'status-ok';
+                const fertClass = fertStatus.isDue ? 'status-danger' : 'status-ok';
+
+                // --- HISTORY RENDERING ---
+                let historyHtml = '<ul class="history-list">';
+                if (plant.history.length === 0) {
+                    historyHtml += '<li>No care history recorded.</li>';
+                } else {
+                    plant.history.slice(0, 5).reverse().forEach(event => { 
+                        const icon = (event.type === 'water') ? 'fa-droplet' : 'fa-flask';
+                        historyHtml += `
+                            <li>
+                                <i class="fa-solid ${icon}"></i> 
+                                ${event.type.toUpperCase()} on 
+                                <strong>${event.date}</strong> 
+                            </li>
+                        `;
+                    });
+                }
+                historyHtml += '</ul>';
+                // --------------------------
+
+
+                const card = document.createElement('div');
+                card.className = 'plant-card';
+                card.innerHTML = `
+                    <div class="card-header">
+                        <h3>${plant.name}</h3>
+                        <span class="badge">${plant.species}</span>
+                    </div>
+                    <div class="card-body">
+                        <p><i class="fa-solid fa-sun"></i> ${plant.sunlight}</p>
+                        <p><i class="fa-regular fa-calendar"></i> Planted: ${plant.planted}</p>
+                        
+                        <div class="status-box ${waterClass}">
+                            <span><i class="fa-solid fa-droplet"></i> ${waterStatus.msg}: <strong>${plant.next_water}</strong></span>
+                            <button onclick="logCare(${plant.id}, 'water')"><i class="fa-solid fa-check"></i> Water</button>
+                        </div>
+
+                        <div class="status-box ${fertClass}">
+                            <span><i class="fa-solid fa-flask"></i> ${fertStatus.msg}: <strong>${plant.next_fertilize}</strong></span>
+                            <button onclick="logCare(${plant.id}, 'fertilize')"><i class="fa-solid fa-check"></i> Feed</button>
+                        </div>
+                        
+                        <div class="history-toggle-container">
+                            <button class="history-toggle-btn" 
+                                onclick="document.getElementById('history-${plant.id}').classList.toggle('visible')">
+                                <i class="fa-solid fa-clock-rotate-left"></i> View History
+                            </button>
+                            <div id="history-${plant.id}" class="history-details">
+                                <h4>Latest Care Events:</h4>
+                                ${historyHtml}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+        } catch (error) {
+            console.error(error);
+            grid.innerHTML = `<div class="loading" style="color:red">Error loading API. Check terminal.</div>`;
+        }
+    }
+
+    // Handle Form Submission (Add Plant)
+    document.getElementById('addForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new URLSearchParams(new FormData(e.target)).toString();
+        
+        await fetch(API_URL, { method: 'POST', body: formData });
+        
+        e.target.reset();
+        loadGarden();
+    });
+
+    // Handle Logging Care (Water/Feed buttons)
+    async function logCare(id, type) {
+        const today = new Date().toISOString().split('T')[0]; 
+        const body = `action=log&id=${id}&type=${type}&date=${today}&notes=Web_Click`;
+        
+        await fetch(API_URL, { method: 'POST', body: body });
+        loadGarden();
+    }
+
+    // Initialize
+    loadGarden();
+</script>
+
+</body>
+</html>

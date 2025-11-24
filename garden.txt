@@ -1,0 +1,1 @@
+PLANT|1|mango|fruit|2025-11-04|2|Partial Shade|1|2

@@ -1,0 +1,255 @@
+/* ================= VARIABLES ================= */
+:root {
+    --primary-color: #2ecc71;       
+    --primary-dark: #27ae60;        
+    --secondary-color: #34495e;     
+    --bg-color: #f0fdf4;            
+    --card-bg: #ffffff;             
+    --danger-color: #e74c3c;        
+    --danger-bg: #fdecea;           
+    --shadow: 0 4px 6px rgba(0,0,0,0.1);
+    --radius: 12px;
+}
+
+/* ================= BASE STYLES ================= */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--secondary-color);
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+header {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+    color: white;
+    padding: 2rem 1rem;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+header h1 { margin: 0; font-size: 2.5rem; font-weight: 700; }
+header p { margin: 0.5rem 0 0; opacity: 0.9; font-size: 1.1rem; }
+
+main {
+    max-width: 1100px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+}
+
+/* ================= FORM PANEL ================= */
+.panel {
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 2.5rem;
+    border: 1px solid #e1e8e1;
+}
+
+.panel h2 {
+    margin-top: 0;
+    color: var(--primary-dark);
+    border-bottom: 2px solid var(--bg-color);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.input-group {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+button[type="submit"] {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.3s, transform 0.1s;
+}
+
+button[type="submit"]:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+/* ================= GARDEN GRID ================= */
+.garden-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+}
+
+.loading {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #777;
+    grid-column: 1 / -1; 
+}
+
+/* ================= PLANT CARD ================= */
+.plant-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+}
+
+.plant-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1.2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-header h3 { margin: 0; font-size: 1.3rem; text-transform: capitalize; }
+.badge { background: rgba(255,255,255,0.25); padding: 4px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.card-body { padding: 1.5rem; flex-grow: 1; }
+
+.card-body p { margin: 5px 0; color: #666; font-size: 0.95rem; }
+.card-body i { width: 20px; text-align: center; margin-right: 8px; color: var(--primary-dark); }
+
+
+/* ================= STATUS BOXES (The Logic UI) ================= */
+.status-box {
+    margin-top: 1rem;
+    padding: 10px;
+    border-radius: 8px;
+    border-left: 5px solid #ccc;
+    background: #f9f9f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* -- Healthy State -- */
+.status-ok {
+    border-left-color: var(--primary-color);
+    background-color: #f0fff4; 
+}
+
+/* -- Danger State (Needs Water) -- */
+.status-danger {
+    border-left-color: var(--danger-color);
+    background-color: var(--danger-bg);
+    animation: pulse 2s infinite; 
+}
+
+.status-danger span strong { color: var(--danger-color); text-transform: uppercase; }
+
+/* Action Buttons (Water/Feed) */
+.status-box button, .history-toggle-btn {
+    background: white;
+    border: 1px solid #ccc;
+    color: var(--secondary-color);
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.status-box button:hover {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* History List Styles */
+.history-toggle-container {
+    margin-top: 15px;
+    border-top: 1px dashed #e0e0e0;
+    padding-top: 15px;
+}
+
+.history-toggle-btn {
+    background: #f0f0f0;
+    color: var(--secondary-color);
+    border: 1px solid #ccc;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.history-details {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
+    padding: 0 5px;
+    background: #fafafa;
+    border-radius: 5px;
+}
+
+.history-details.visible {
+    max-height: 500px;
+    padding: 10px;
+    border: 1px solid #eee;
+}
+
+.history-details h4 {
+    margin-top: 0;
+    margin-bottom: 5px;
+    font-size: 1em;
+    color: var(--primary-dark);
+}
+
+.history-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.9em;
+}
+
+.history-list li {
+    padding: 4px 0;
+    border-bottom: 1px dotted #eee;
+}
+
+
+/* ================= ANIMATIONS & MEDIA QUERIES ================= */
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
+    70% { box-shadow: 0 0 0 6px rgba(231, 76, 60, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+}
+
+@media (max-width: 768px) {
+    .input-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
